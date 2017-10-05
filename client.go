@@ -10,6 +10,8 @@ import (
 // Client is the Postfix REST server client.
 type Client struct {
 	client *goprsc.Client
+
+	Domains DomainService
 }
 
 // NewClient creates an instance of Client.
@@ -20,7 +22,8 @@ func NewClient() (*Client, error) {
 	}
 
 	client := &Client{
-		client: goprscClient,
+		client:  goprscClient,
+		Domains: NewDomainService(goprscClient),
 	}
 
 	return client, nil
