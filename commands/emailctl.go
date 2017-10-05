@@ -8,14 +8,15 @@ import (
 var cfgFile string
 
 // emailctlCommand represents the base command when called without any subcommands
-var emailctlCommand = &cobra.Command{
-	Use:   "emailctl",
-	Short: "emailctl is a CLI for managing Postfix Rest Server",
-	Long:  `emailctl is a command line interface (CLI) to the Postfix Rest Server`,
+var emailctlCommand = &Command{
+	Command: &cobra.Command{
+		Use:   "emailctl",
+		Short: "emailctl is a CLI for managing Postfix Rest Server",
+		Long:  `emailctl is a command line interface (CLI) to the Postfix Rest Server`,
+	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd
 func Execute() {
 	checkErr(emailctlCommand.Execute())
 }
@@ -23,6 +24,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 	emailctlCommand.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.emailctl.yaml)")
+	initCommands()
 }
 
 func initConfig() {
@@ -39,4 +41,9 @@ func initConfig() {
 	viper.SetDefault("https", false)
 
 	checkErr(viper.ReadInConfig())
+}
+
+func initCommands() {
+	emailctlCommand.AddCommand(CreateDomainCommand())
+	emailctlCommand.AddCommand(CreateVersionCommand())
 }
