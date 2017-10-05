@@ -34,5 +34,9 @@ func initConfig() {
 	viper.AddConfigPath("$HOME")
 	viper.AutomaticEnv()
 
+	viper.SetDefault("host", "localhost")
+	viper.SetDefault("port", "8080")
+	viper.SetDefault("https", false)
+
 	checkErr(viper.ReadInConfig())
 }
