@@ -19,12 +19,12 @@ func CreateDomainCommand() *Command {
 	}
 
 	BuildCommand(c, listDomains, "list", "List all domains", AliasOption("l"))
-	BuildCommand(c, showDomain, "show <domain_name>", "Shows information about specific domain", ArgsOption(1), AliasOption("s"))
-	BuildCommand(c, addDomain, "add <domain_name>", "Adds a new domain", ArgsOption(1), AliasOption("a"))
-	BuildCommand(c, deleteDomain, "delete <domain_name>", "Deletes the domain specified by domain_name", ArgsOption(1), AliasOption("rm"))
-	BuildCommand(c, renameDomain, "rename <current_name> <new_name>", "Renames the domain specified by current_name to new_name", ArgsOption(2), AliasOption("r"))
-	BuildCommand(c, disableDomain, "disable <domain_name>", "Disables the domain specified by domain_name", ArgsOption(1), AliasOption("d"))
-	BuildCommand(c, enableDomain, "enable <domain_name>", "Enables the domain specified by domain_name", ArgsOption(1), AliasOption("e"))
+	BuildCommand(c, showDomain, "show <domain_name>", "Show information about specific domain", ArgsOption(1), AliasOption("s"))
+	BuildCommand(c, addDomain, "add <domain_name>", "Add a new domain", ArgsOption(1), AliasOption("a"))
+	BuildCommand(c, deleteDomain, "delete <domain_name>", "Delete the domain specified by domain_name", ArgsOption(1), AliasOption("rm"))
+	BuildCommand(c, renameDomain, "rename <current_name> <new_name>", "Rename the domain specified by current_name to new_name", ArgsOption(2), AliasOption("r"))
+	BuildCommand(c, disableDomain, "disable <domain_name>", "Disable the domain specified by domain_name", ArgsOption(1), AliasOption("d"))
+	BuildCommand(c, enableDomain, "enable <domain_name>", "Enable the domain specified by domain_name", ArgsOption(1), AliasOption("e"))
 
 	return c
 }
