@@ -55,3 +55,10 @@ func ArgsOption(n int) CommandOption {
 		c.Args = cobra.ExactArgs(n)
 	}
 }
+
+// AliasOption returns a CommandOption that sets an alias to the command.
+func AliasOption(alias string) CommandOption {
+	return func(c *Command) {
+		c.Aliases = append(c.Aliases, alias)
+	}
+}
