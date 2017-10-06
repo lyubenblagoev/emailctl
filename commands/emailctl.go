@@ -1,9 +1,17 @@
 package commands
 
 import (
+	"github.com/lyubenblagoev/emailctl"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+// EmailctlVersion is emailctl's version.
+var EmailctlVersion = emailctl.Version{
+	Major: 0,
+	Minor: 1,
+	Patch: 0,
+}
 
 var cfgFile string
 
