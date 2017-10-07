@@ -2,7 +2,7 @@
 
 emailctl is a command line interface (CLI) for the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) V1 API. 
 
-emailctl is a work in progress and currently supports only the domain API.
+emailctl is a work in progress and currently supports only the domain and account API.
 
 ```
 emailctl is a command line interface (CLI) to the Postfix Rest Server
@@ -11,6 +11,7 @@ Usage:
   emailctl [command]
 
 Available Commands:
+  account     Account commands
   domain      Domain commands
   help        Help about any command
   version     Prints the version number of emailctl
@@ -56,6 +57,8 @@ The above values are the defaults. You can omit options that don't change the de
 
 Below are a few usage examples:
 
+### Domain API
+
 * List all domains on your server:
 
 ```
@@ -90,6 +93,40 @@ emailctl domain disable example.com
 
 ```
 emailctl domain rename example.com example.net
+```
+
+### Account API
+
+* List accounts for domain:
+
+```
+emailctl account list example.com
+```
+
+* Show information for account in specific domain:
+
+```
+emailctl account show example.com user1
+```
+
+* Delete account:
+
+```
+emailctl account delete example.com user1
+```
+
+* Disable account: 
+
+```
+emailctl account disable example.com user1
+```
+
+* Change password for account:
+
+```
+emailctl account password example.com user1
+Password: 
+Confirm password: 
 ```
 
 ## More information

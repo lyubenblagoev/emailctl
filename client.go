@@ -11,7 +11,8 @@ import (
 type Client struct {
 	client *goprsc.Client
 
-	Domains DomainService
+	Domains  DomainService
+	Accounts AccountService
 }
 
 // NewClient creates an instance of Client.
@@ -22,8 +23,10 @@ func NewClient() (*Client, error) {
 	}
 
 	client := &Client{
-		client:  goprscClient,
-		Domains: NewDomainService(goprscClient),
+		client: goprscClient,
+
+		Domains:  NewDomainService(goprscClient),
+		Accounts: NewAccountService(goprscClient),
 	}
 
 	return client, nil
