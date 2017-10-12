@@ -12,6 +12,7 @@ Usage:
 
 Available Commands:
   account     Account commands
+  alias       Alias commands
   domain      Domain commands
   help        Help about any command
   version     Prints the version number of emailctl
