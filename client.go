@@ -13,6 +13,7 @@ type Client struct {
 
 	Domains  DomainService
 	Accounts AccountService
+	Aliases  AliasService
 }
 
 // NewClient creates an instance of Client.
@@ -27,6 +28,7 @@ func NewClient() (*Client, error) {
 
 		Domains:  NewDomainService(goprscClient),
 		Accounts: NewAccountService(goprscClient),
+		Aliases:  NewAliasService(goprscClient),
 	}
 
 	return client, nil

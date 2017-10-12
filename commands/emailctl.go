@@ -54,5 +54,6 @@ func initConfig() {
 func initCommands() {
 	emailctlCommand.AddCommand(CreateDomainCommand())
 	emailctlCommand.AddCommand(CreateAccountCommand())
+	emailctlCommand.AddCommand(CreateAliasCommand())
 	emailctlCommand.AddCommand(CreateVersionCommand())
 }

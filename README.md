@@ -2,7 +2,7 @@
 
 emailctl is a command line interface (CLI) for the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) V1 API. 
 
-emailctl is a work in progress and currently supports only the domain and account API.
+emailctl is a work in progress and currently supports only the domain, account and aliases API.
 
 ```
 emailctl is a command line interface (CLI) to the Postfix Rest Server
