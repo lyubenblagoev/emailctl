@@ -12,7 +12,8 @@ type AliasService interface {
 	List(domain string) ([]Alias, error)
 	Get(domain string, alias string) (*Alias, error)
 	Create(domain, alias, email string) error
-	Update(domain, alias string, ur *goprsc.AliasUpdateRequest) error
+	Enable(domain, alias string) error
+	Disable(domain, alias string) error
 	Delete(domain, alias string) error
 }
 
@@ -41,6 +42,10 @@ func (s *aliasService) List(domain string) ([]Alias, error) {
 }
 
 func (s *aliasService) Get(domain string, alias string) (*Alias, error) {
+	if err := ValidateEmailAddress(alias, domain); err != nil {
+		return nil, err
+	}
+
 	a, err := s.client.Aliases.Get(domain, alias)
 	if err != nil {
 		return nil, err
@@ -53,10 +58,32 @@ func (s *aliasService) Create(domain, alias, email string) error {
 	return s.client.Aliases.Create(domain, alias, email)
 }
 
-func (s *aliasService) Update(domain, alias string, ur *goprsc.AliasUpdateRequest) error {
-	return s.client.Aliases.Update(domain, alias, ur)
-}
-
 func (s *aliasService) Delete(domain, alias string) error {
 	return s.client.Aliases.Delete(domain, alias)
+}
+
+func (s *aliasService) Enable(domain, alias string) error {
+	return s.setEnabled(domain, alias, true)
+}
+
+func (s *aliasService) Disable(domain, alias string) error {
+	return s.setEnabled(domain, alias, false)
+}
+
+func (s *aliasService) setEnabled(domain, alias string, enabled bool) error {
+	if err := ValidateEmailAddress(alias, domain); err != nil {
+		return err
+	}
+
+	a, err := s.client.Aliases.Get(domain, alias)
+	if err != nil {
+		return err
+	}
+
+	ur := &goprsc.AliasUpdateRequest{
+		Name:    alias,
+		Email:   a.Email,
+		Enabled: enabled,
+	}
+	return s.client.Aliases.Update(domain, alias, ur)
 }

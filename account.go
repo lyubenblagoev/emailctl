@@ -1,11 +1,6 @@
 package emailctl
 
-import (
-	"fmt"
-	"net/mail"
-
-	"github.com/lyubenblagoev/goprsc"
-)
+import "github.com/lyubenblagoev/goprsc"
 
 // Account is a wrapper for goprsc.Account.
 type Account struct {
@@ -17,8 +12,11 @@ type AccountService interface {
 	List(domain string) ([]Account, error)
 	Get(domain string, username string) (*Account, error)
 	Create(domain, username, password string) error
-	Update(domain, username string, req *goprsc.AccountUpdateRequest) error
 	Delete(domain, username string) error
+	Enable(domain, username string) error
+	Disable(domain, username string) error
+	Rename(domain, old, new string) error
+	ChangePassword(domain, username, password string) error
 }
 
 type accountService struct {
@@ -48,6 +46,10 @@ func (s *accountService) List(domain string) ([]Account, error) {
 }
 
 func (s *accountService) Get(domain string, username string) (*Account, error) {
+	if err := ValidateEmailAddress(username, domain); err != nil {
+		return nil, err
+	}
+
 	a, err := s.client.Accounts.Get(domain, username)
 	if err != nil {
 		return nil, err
@@ -57,24 +59,68 @@ func (s *accountService) Get(domain string, username string) (*Account, error) {
 }
 
 func (s *accountService) Create(domain, username, password string) error {
+	if err := ValidateEmailAddress(username, domain); err != nil {
+		return err
+	}
+
 	return s.client.Accounts.Create(domain, username, password)
 }
 
-func (s *accountService) Update(domain, username string, req *goprsc.AccountUpdateRequest) error {
-	return s.client.Accounts.Update(domain, username, req)
-}
-
 func (s *accountService) Delete(domain, username string) error {
+	if err := ValidateEmailAddress(username, domain); err != nil {
+		return err
+	}
+
 	return s.client.Accounts.Delete(domain, username)
 }
 
-// ValidateEmailAddress validates the email address using the given account name and domain
-// and returns an error if the name is invalid.
-func ValidateEmailAddress(name, domain string) error {
-	email := fmt.Sprintf("%s@%s", name, domain)
-	_, err := mail.ParseAddress(email)
-	if err != nil {
-		return fmt.Errorf("invalid email address: '%s'", email)
+func (s *accountService) Enable(domain, username string) error {
+	if err := ValidateEmailAddress(username, domain); err != nil {
+		return err
 	}
-	return nil
+
+	ur := &goprsc.AccountUpdateRequest{
+		Username: username,
+		Enabled:  true,
+	}
+	return s.client.Accounts.Update(domain, username, ur)
+}
+
+func (s *accountService) Disable(domain, username string) error {
+	if err := ValidateEmailAddress(username, domain); err != nil {
+		return err
+	}
+
+	ur := &goprsc.AccountUpdateRequest{
+		Username: username,
+		Enabled:  false,
+	}
+	return s.client.Accounts.Update(domain, username, ur)
+}
+
+func (s *accountService) Rename(domain, old, new string) error {
+	usernames := []string{old, new}
+	for _, u := range usernames {
+		if err := ValidateEmailAddress(u, domain); err != nil {
+			return err
+		}
+	}
+
+	ur := &goprsc.AccountUpdateRequest{
+		Username: new,
+	}
+	return s.client.Accounts.Update(domain, old, ur)
+}
+
+func (s *accountService) ChangePassword(domain, username, password string) error {
+	if err := ValidateEmailAddress(username, domain); err != nil {
+		return err
+	}
+
+	ur := &goprsc.AccountUpdateRequest{
+		Username:        username,
+		Password:        password,
+		ConfirmPassword: password,
+	}
+	return s.client.Accounts.Update(domain, username, ur)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/lyubenblagoev/emailctl"
-	"github.com/lyubenblagoev/goprsc"
 	"github.com/spf13/cobra"
 )
 
@@ -46,7 +45,6 @@ func listAliases(client *emailctl.Client, args []string) error {
 
 func showAlias(client *emailctl.Client, args []string) error {
 	domain, alias := args[0], args[1]
-	validateEmailAddress(domain, alias)
 	a, err := client.Aliases.Get(domain, alias)
 	if err != nil {
 		return err
@@ -64,36 +62,20 @@ func showAlias(client *emailctl.Client, args []string) error {
 
 func addAlias(client *emailctl.Client, args []string) error {
 	domain, alias, email := args[0], args[1], args[2]
-	validateEmailAddress(domain, alias)
 	return client.Aliases.Create(domain, alias, email)
 }
 
 func deleteAlias(client *emailctl.Client, args []string) error {
 	domain, alias := args[0], args[1]
-	validateEmailAddress(domain, alias)
 	return client.Aliases.Delete(domain, alias)
 }
 
 func enableAlias(client *emailctl.Client, args []string) error {
 	domain, alias := args[0], args[1]
-	return changeAliasEnabled(client, domain, alias, true)
+	return client.Aliases.Enable(domain, alias)
 }
 
 func disableAlias(client *emailctl.Client, args []string) error {
 	domain, alias := args[0], args[1]
-	return changeAliasEnabled(client, domain, alias, false)
-}
-
-func changeAliasEnabled(client *emailctl.Client, domain, alias string, enabled bool) error {
-	validateEmailAddress(domain, alias)
-	a, err := client.Aliases.Get(domain, alias)
-	if err != nil {
-		return err
-	}
-	ur := &goprsc.AliasUpdateRequest{
-		Name:    alias,
-		Email:   a.Email,
-		Enabled: enabled,
-	}
-	return client.Aliases.Update(domain, alias, ur)
+	return client.Aliases.Disable(domain, alias)
 }

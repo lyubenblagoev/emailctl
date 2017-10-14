@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/lyubenblagoev/emailctl"
-	"github.com/lyubenblagoev/goprsc"
 	"github.com/spf13/cobra"
 )
 
@@ -72,27 +71,15 @@ func deleteDomain(client *emailctl.Client, args []string) error {
 
 func renameDomain(client *emailctl.Client, args []string) error {
 	oldName, newName := args[0], args[1]
-	ur := &goprsc.DomainUpdateRequest{
-		Name:    newName,
-		Enabled: true,
-	}
-	return client.Domains.Update(oldName, ur)
+	return client.Domains.Rename(oldName, newName)
 }
 
 func disableDomain(client *emailctl.Client, args []string) error {
 	domainName := args[0]
-	ur := &goprsc.DomainUpdateRequest{
-		Name:    domainName,
-		Enabled: false,
-	}
-	return client.Domains.Update(domainName, ur)
+	return client.Domains.Disable(domainName)
 }
 
 func enableDomain(client *emailctl.Client, args []string) error {
 	domainName := args[0]
-	ur := &goprsc.DomainUpdateRequest{
-		Name:    domainName,
-		Enabled: true,
-	}
-	return client.Domains.Update(domainName, ur)
+	return client.Domains.Enable(domainName)
 }

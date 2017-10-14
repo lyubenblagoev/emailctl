@@ -10,10 +10,12 @@ type Domain struct {
 // DomainService is an interface for interacting with the PostfixRestServer domain API.
 type DomainService interface {
 	List() ([]Domain, error)
-	Get(string) (*Domain, error)
-	Create(string) error
-	Update(string, *goprsc.DomainUpdateRequest) error
-	Delete(string) error
+	Get(name string) (*Domain, error)
+	Create(name string) error
+	Delete(name string) error
+	Rename(old, new string) error
+	Enable(name string) error
+	Disable(name string) error
 }
 
 type domainService struct {
@@ -54,10 +56,21 @@ func (ds *domainService) Create(name string) error {
 	return ds.client.Domains.Create(name)
 }
 
-func (ds *domainService) Update(name string, req *goprsc.DomainUpdateRequest) error {
-	return ds.client.Domains.Update(name, req)
-}
-
 func (ds *domainService) Delete(name string) error {
 	return ds.client.Domains.Delete(name)
+}
+
+func (ds *domainService) Rename(old, new string) error {
+	ur := &goprsc.DomainUpdateRequest{Name: new}
+	return ds.client.Domains.Update(old, ur)
+}
+
+func (ds *domainService) Enable(name string) error {
+	ur := &goprsc.DomainUpdateRequest{Name: name, Enabled: true}
+	return ds.client.Domains.Update(name, ur)
+}
+
+func (ds *domainService) Disable(name string) error {
+	ur := &goprsc.DomainUpdateRequest{Name: name, Enabled: false}
+	return ds.client.Domains.Update(name, ur)
 }
