@@ -1,6 +1,11 @@
 package emailctl
 
-import "github.com/lyubenblagoev/goprsc"
+import (
+	"fmt"
+	"strings"
+
+	"github.com/lyubenblagoev/goprsc"
+)
 
 // Alias is a wrapper for goprsc.Alias.
 type Alias struct {
@@ -10,11 +15,12 @@ type Alias struct {
 // AliasService is an interface for interacting with the PostfixRestServer alias API.
 type AliasService interface {
 	List(domain string) ([]Alias, error)
-	Get(domain string, alias string) (*Alias, error)
+	Get(domain, alias string) ([]Alias, error)
+	GetForEmail(domain, alias, email string) (*Alias, error)
 	Create(domain, alias, email string) error
-	Enable(domain, alias string) error
-	Disable(domain, alias string) error
-	Delete(domain, alias string) error
+	Enable(domain, alias, email string) error
+	Disable(domain, alias, email string) error
+	Delete(domain, alias, email string) error
 }
 
 type aliasService struct {
@@ -41,41 +47,66 @@ func (s *aliasService) List(domain string) ([]Alias, error) {
 	return list, nil
 }
 
-func (s *aliasService) Get(domain string, alias string) (*Alias, error) {
+func (s *aliasService) Get(domain, alias string) ([]Alias, error) {
 	if err := ValidateEmailAddress(alias, domain); err != nil {
 		return nil, err
 	}
 
-	a, err := s.client.Aliases.Get(domain, alias)
+	aliases, err := s.client.Aliases.Get(domain, alias)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Alias{Alias: a}, err
+	list := make([]Alias, len(aliases))
+	for i := range aliases {
+		list[i] = Alias{Alias: &aliases[i]}
+	}
+	return list, nil
+}
+
+func (s *aliasService) GetForEmail(domain, alias, email string) (*Alias, error) {
+	if err := ValidateEmailAddress(alias, domain); err != nil {
+		return nil, err
+	}
+	parts := strings.Split(email, "@")
+	if err := ValidateEmailAddress(parts[0], parts[1]); err != nil {
+		return nil, err
+	}
+
+	a, err := s.client.Aliases.GetForEmail(domain, alias, email)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Alias{Alias: a}, nil
 }
 
 func (s *aliasService) Create(domain, alias, email string) error {
 	return s.client.Aliases.Create(domain, alias, email)
 }
 
-func (s *aliasService) Delete(domain, alias string) error {
-	return s.client.Aliases.Delete(domain, alias)
+func (s *aliasService) Delete(domain, alias, email string) error {
+	return s.client.Aliases.Delete(domain, alias, email)
 }
 
-func (s *aliasService) Enable(domain, alias string) error {
-	return s.setEnabled(domain, alias, true)
+func (s *aliasService) Enable(domain, alias, email string) error {
+	return s.setEnabled(domain, alias, email, true)
 }
 
-func (s *aliasService) Disable(domain, alias string) error {
-	return s.setEnabled(domain, alias, false)
+func (s *aliasService) Disable(domain, alias, email string) error {
+	return s.setEnabled(domain, alias, email, false)
 }
 
-func (s *aliasService) setEnabled(domain, alias string, enabled bool) error {
+func (s *aliasService) setEnabled(domain, alias, email string, enabled bool) error {
 	if err := ValidateEmailAddress(alias, domain); err != nil {
-		return err
+		return fmt.Errorf("Invalid alias email: %s: %v", fmt.Sprintf("%s@%s", alias, domain), err)
+	}
+	parts := strings.Split(email, "@")
+	if err := ValidateEmailAddress(parts[0], parts[1]); err != nil {
+		return fmt.Errorf("Invalid recipient address: %s: %v", email, err)
 	}
 
-	a, err := s.client.Aliases.Get(domain, alias)
+	a, err := s.client.Aliases.GetForEmail(domain, alias, email)
 	if err != nil {
 		return err
 	}
@@ -85,5 +116,5 @@ func (s *aliasService) setEnabled(domain, alias string, enabled bool) error {
 		Email:   a.Email,
 		Enabled: enabled,
 	}
-	return s.client.Aliases.Update(domain, alias, ur)
+	return s.client.Aliases.Update(domain, alias, email, ur)
 }

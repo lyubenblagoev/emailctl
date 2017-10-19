@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/lyubenblagoev/emailctl"
 	"github.com/spf13/cobra"
 )
@@ -53,6 +55,19 @@ func (c *Command) AddCommand(commands ...*Command) {
 func ArgsOption(n int) CommandOption {
 	return func(c *Command) {
 		c.Args = cobra.ExactArgs(n)
+	}
+}
+
+// ArgsRangeOption returns a CommandOption that returns an error if number of arguments passed
+// to command is less than `min` or greater than `max`.
+func ArgsRangeOption(min, max int) CommandOption {
+	return func(c *Command) {
+		c.Args = func(cmd *cobra.Command, args []string) error {
+			if len(args) < min || len(args) > max {
+				return fmt.Errorf("requires at least %d and at most %d arguments, got %d", min, max, len(args))
+			}
+			return nil
+		}
 	}
 }
 
