@@ -20,7 +20,7 @@ func CreateAliasCommand() *Command {
 	BuildCommand(c, listAliases, "list <domain_name> [alias]", "List aliases for specific domain and / or alias", ArgsRangeOption(1, 2), AliasOption("l"))
 	BuildCommand(c, showAlias, "show <domain_name> <alias> <email>", "Show information about specific alias", ArgsOption(3), AliasOption("s"))
 	BuildCommand(c, addAlias, "add <domain_name> <alias> <email>", "Add new alias to an email", ArgsOption(3), AliasOption("a"))
-	BuildCommand(c, deleteAlias, "delete <domain_name> <alias> <email>", "Delete the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("rm"))
+	BuildCommand(c, deleteAlias, "delete <domain_name> <alias> [email]", "Delete all <alias> alises for the specified <domain_name> or specific alias if recipient's email address is provided", ArgsRangeOption(2, 3), AliasOption("rm"))
 	BuildCommand(c, disableAlias, "disable <domain_name> <alias> <email>", "Disable the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("d"))
 	BuildCommand(c, enableAlias, "enable <domain_name> <alias> <email>", "Enable the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("e"))
 	BuildCommand(c, renameAlias, "rename <domain_name> <alias> <new_name> [email]", "Rename all <alias> aliases for the specified <domain_name> or specific alias if recipient's email address is provided", ArgsRangeOption(3, 4), AliasOption("r"))
@@ -90,8 +90,12 @@ func addAlias(client *emailctl.Client, args []string) error {
 }
 
 func deleteAlias(client *emailctl.Client, args []string) error {
-	domain, alias, email := args[0], args[1], args[2]
-	return client.Aliases.Delete(domain, alias, email)
+	domain, alias := args[0], args[1]
+	if len(args) == 3 {
+		email := args[2]
+		return client.Aliases.Delete(domain, alias, email)
+	}
+	return client.Aliases.DeleteAll(domain, alias)
 }
 
 func enableAlias(client *emailctl.Client, args []string) error {

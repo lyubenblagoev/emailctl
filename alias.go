@@ -21,6 +21,7 @@ type AliasService interface {
 	Disable(domain, alias, email string) error
 	Enable(domain, alias, email string) error
 	Delete(domain, alias, email string) error
+	DeleteAll(domain, alias string) error
 	Rename(domain, alias, email, newName string) error
 	RenameAll(domain, alias, newName string) error
 }
@@ -88,7 +89,28 @@ func (s *aliasService) Create(domain, alias, email string) error {
 }
 
 func (s *aliasService) Delete(domain, alias, email string) error {
+	if err := ValidateEmailAddress(alias, domain); err != nil {
+		return err
+	}
 	return s.client.Aliases.Delete(domain, alias, email)
+}
+
+func (s *aliasService) DeleteAll(domain, alias string) error {
+	if err := ValidateEmailAddress(alias, domain); err != nil {
+		return err
+	}
+
+	aliases, err := s.client.Aliases.Get(domain, alias)
+	if err != nil {
+		return err
+	}
+	for _, a := range aliases {
+		if err := s.client.Aliases.Delete(domain, alias, a.Email); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *aliasService) Enable(domain, alias, email string) error {
