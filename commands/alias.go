@@ -17,13 +17,13 @@ func CreateAliasCommand() *Command {
 		},
 	}
 
-	BuildCommand(c, listAliases, "list <domain_name> [alias]", "List aliases for specific domain and / or alias", ArgsRangeOption(1, 2), AliasOption("l"))
-	BuildCommand(c, showAlias, "show <domain_name> <alias> <email>", "Show information about specific alias", ArgsOption(3), AliasOption("s"))
-	BuildCommand(c, addAlias, "add <domain_name> <alias> <email>", "Add new alias to an email", ArgsOption(3), AliasOption("a"))
-	BuildCommand(c, deleteAlias, "delete <domain_name> <alias> [email]", "Delete all <alias> alises for the specified <domain_name> or specific alias if recipient's email address is provided", ArgsRangeOption(2, 3), AliasOption("rm"))
-	BuildCommand(c, disableAlias, "disable <domain_name> <alias> <email>", "Disable the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("d"))
-	BuildCommand(c, enableAlias, "enable <domain_name> <alias> <email>", "Enable the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("e"))
-	BuildCommand(c, renameAlias, "rename <domain_name> <alias> <new_name> [email]", "Rename all <alias> aliases for the specified <domain_name> or specific alias if recipient's email address is provided", ArgsRangeOption(3, 4), AliasOption("r"))
+	BuildCommand(c, listAliases, "list <domain-name> [<name>]", "List all aliases", ArgsRangeOption(1, 2), AliasOption("l"))
+	BuildCommand(c, showAlias, "show <domain-name> <name> <recipient-email-address>", "Show specific alias", ArgsOption(3), AliasOption("s"))
+	BuildCommand(c, addAlias, "add <domain-name> <name> <recipient-email-address>", "Add a new alias", ArgsOption(3), AliasOption("a"))
+	BuildCommand(c, deleteAlias, "delete <domain-name> <name> [<recipient-email-address>]", "Delete alias(es)", ArgsRangeOption(2, 3), AliasOption("rm"))
+	BuildCommand(c, disableAlias, "disable <domain-name> <name> <recipient-email-address>", "Disable specific alias", ArgsOption(3), AliasOption("d"))
+	BuildCommand(c, enableAlias, "enable <domain-name> <name> <recipient-email-address>", "Enable specific alias", ArgsOption(3), AliasOption("e"))
+	BuildCommand(c, renameAlias, "rename <domain-name> <name> <new-name> [<recipient-email-address>]", "Rename alias(es)", ArgsRangeOption(3, 4), AliasOption("r"))
 
 	return c
 }

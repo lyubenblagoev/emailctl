@@ -17,13 +17,13 @@ func CreateAccountCommand() *Command {
 		},
 	}
 
-	BuildCommand(c, listAccounts, "list <domain_name>", "List accounts for specific domain", ArgsOption(1), AliasOption("l"))
-	BuildCommand(c, showAccount, "show <domain_name> <account_name>", "Show information about specific account", ArgsOption(2), AliasOption("s"))
-	BuildCommand(c, addAccount, "add <domain_name> <account_name>", "Add new account", ArgsOption(2), AliasOption("a"))
-	BuildCommand(c, deleteAccount, "delete <domain_name> <account_name>", "Delete the account specified by domain_name and account_name", ArgsOption(2), AliasOption("rm"))
-	BuildCommand(c, disableAccount, "disable <domain_name> <account_name>", "Disable the account specified by domain_name and account_name", ArgsOption(2), AliasOption("d"))
-	BuildCommand(c, enableAccount, "enable <domain_name> <account_name>", "Enable the account specified by domain_name and account_name", ArgsOption(2), AliasOption("e"))
-	BuildCommand(c, changeAccountPassword, "password <domain_name> <account_name>", "Change the password for the account specified by domain_name and account_name", ArgsOption(2), AliasOption("p"))
+	BuildCommand(c, listAccounts, "list <domain-name>", "List all accounts", ArgsOption(1), AliasOption("l"))
+	BuildCommand(c, showAccount, "show <domain-name> <name>", "Show specific account", ArgsOption(2), AliasOption("s"))
+	BuildCommand(c, addAccount, "add <domain-name> <name>", "Add a new account", ArgsOption(2), AliasOption("a"))
+	BuildCommand(c, deleteAccount, "delete <domain-name> <name>", "Delete an account", ArgsOption(2), AliasOption("rm"))
+	BuildCommand(c, disableAccount, "disable <domain-name> <name>", "Disable an account", ArgsOption(2), AliasOption("d"))
+	BuildCommand(c, enableAccount, "enable <domain-name> <name>", "Enable an account", ArgsOption(2), AliasOption("e"))
+	BuildCommand(c, changeAccountPassword, "password <domain-name> <name>", "Change account password", ArgsOption(2), AliasOption("p"))
 
 	return c
 }
