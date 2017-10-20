@@ -18,9 +18,11 @@ type AliasService interface {
 	Get(domain, alias string) ([]Alias, error)
 	GetForEmail(domain, alias, email string) (*Alias, error)
 	Create(domain, alias, email string) error
-	Enable(domain, alias, email string) error
 	Disable(domain, alias, email string) error
+	Enable(domain, alias, email string) error
 	Delete(domain, alias, email string) error
+	Rename(domain, alias, email, newName string) error
+	RenameAll(domain, alias, newName string) error
 }
 
 type aliasService struct {
@@ -117,4 +119,38 @@ func (s *aliasService) setEnabled(domain, alias, email string, enabled bool) err
 		Enabled: enabled,
 	}
 	return s.client.Aliases.Update(domain, alias, email, ur)
+}
+
+func (s *aliasService) Rename(domain, alias, email, newName string) error {
+	if err := ValidateEmailAddress(newName, domain); err != nil {
+		return err
+	}
+
+	ur := &goprsc.AliasUpdateRequest{
+		Name:  newName,
+		Email: email,
+	}
+	return s.client.Aliases.Update(domain, alias, email, ur)
+}
+
+func (s *aliasService) RenameAll(domain, alias, newName string) error {
+	if err := ValidateEmailAddress(newName, domain); err != nil {
+		return err
+	}
+
+	aliases, err := s.client.Aliases.Get(domain, alias)
+	if err != nil {
+		return err
+	}
+	for _, a := range aliases {
+		ur := &goprsc.AliasUpdateRequest{
+			Name:  newName,
+			Email: a.Email,
+		}
+		if err := s.client.Aliases.Update(domain, alias, a.Email, ur); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

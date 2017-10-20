@@ -23,6 +23,7 @@ func CreateAliasCommand() *Command {
 	BuildCommand(c, deleteAlias, "delete <domain_name> <alias> <email>", "Delete the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("rm"))
 	BuildCommand(c, disableAlias, "disable <domain_name> <alias> <email>", "Disable the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("d"))
 	BuildCommand(c, enableAlias, "enable <domain_name> <alias> <email>", "Enable the alias specified by domain_name, alias and email", ArgsOption(3), AliasOption("e"))
+	BuildCommand(c, renameAlias, "rename <domain_name> <alias> <new_name> [email]", "Rename all <alias> aliases for the specified <domain_name> or specific alias if recipient's email address is provided", ArgsRangeOption(3, 4), AliasOption("r"))
 
 	return c
 }
@@ -101,4 +102,13 @@ func enableAlias(client *emailctl.Client, args []string) error {
 func disableAlias(client *emailctl.Client, args []string) error {
 	domain, alias, email := args[0], args[1], args[2]
 	return client.Aliases.Disable(domain, alias, email)
+}
+
+func renameAlias(client *emailctl.Client, args []string) error {
+	domain, alias, newName := args[0], args[1], args[2]
+	if len(args) == 4 {
+		email := args[3]
+		return client.Aliases.Rename(domain, alias, email, newName)
+	}
+	return client.Aliases.RenameAll(domain, alias, newName)
 }
