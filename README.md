@@ -28,10 +28,16 @@ Use "emailctl [command] --help" for more information about a command.
 
 ### Install from source
 
-If you have a Go environment configured, you can install the development version of `emailctl` from the command line like so: 
+If you have a Go environment configured, you can install the latest development version of `emailctl` directly from my GitHub account from the command line like so: 
 
 ```
-go get github.com/lyubenblagoev/emailctl
+go get github.com/lyubenblagoev/emailctl/...
+```
+
+which will install the executable in your GOPATH, or you can build it with the following command and move the executable somewhere under PATH:
+
+```
+go build -o some-path/emailctl ./cmd/emailctl
 ```
 
 ## Configuration
