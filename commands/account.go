@@ -23,6 +23,7 @@ func CreateAccountCommand() *Command {
 	BuildCommand(c, deleteAccount, "delete <domain-name> <name>", "Delete an account", ArgsOption(2), AliasOption("rm"))
 	BuildCommand(c, disableAccount, "disable <domain-name> <name>", "Disable an account", ArgsOption(2), AliasOption("d"))
 	BuildCommand(c, enableAccount, "enable <domain-name> <name>", "Enable an account", ArgsOption(2), AliasOption("e"))
+	BuildCommand(c, renameAccount, "rename <domain-name> <name> <new_name>", "Rename account", ArgsOption(3), AliasOption("r"))
 	BuildCommand(c, changeAccountPassword, "password <domain-name> <name>", "Change account password", ArgsOption(2), AliasOption("p"))
 
 	return c
