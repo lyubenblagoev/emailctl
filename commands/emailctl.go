@@ -56,4 +56,6 @@ func initCommands() {
 	emailctlCommand.AddCommand(CreateAccountCommand())
 	emailctlCommand.AddCommand(CreateAliasCommand())
 	emailctlCommand.AddCommand(CreateVersionCommand())
+	emailctlCommand.AddCommand(CreateSenderBccCommand())
+	emailctlCommand.AddCommand(CreateRecipientBccCommand())
 }

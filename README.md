@@ -1,8 +1,8 @@
 # emailctl
 
-emailctl is a command line interface (CLI) for the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) V1 API. 
+emailctl is a command line interface (CLI) for the [Postfix Rest Server][1] V1 API. 
 
-emailctl is a work in progress and currently supports only the domain, account and aliases API.
+emailctl currently implements all [Postfix Rest Server][1] APIs (domains, accounts, aliases, automatic sender and recipient BCC).
 
 ```
 emailctl is a command line interface (CLI) to the Postfix Rest Server
@@ -11,11 +11,13 @@ Usage:
   emailctl [command]
 
 Available Commands:
-  account     Account commands
-  alias       Alias commands
-  domain      Domain commands
-  help        Help about any command
-  version     Prints the version number of emailctl
+  account       Account commands
+  alias         Alias commands
+  domain        Domain commands
+  help          Help about any command
+  recipient-bcc recipient-bcc commands
+  sender-bcc    sender-bcc commands
+  version       Prints the version number of emailctl
 
 Flags:
       --config string   config file (default is $HOME/.emailctl.yaml)
@@ -46,9 +48,9 @@ By default `emailctl` will load a configuration file from `$HOME/.emailctl.yaml`
 
 ### Configuration options
 
-* `https` - Boolean setting for whether to use HTTPS for connection to the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server).
-* `host` - The hostname or IP address of the machine on which the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) is running.
-* `port` - The port on which the [Postfix Rest Server](https://github.com/lyubenblagoev/postfix-rest-server) is listening.
+* `https` - Boolean setting for whether to use HTTPS for connection to the [Postfix Rest Server][1].
+* `host` - The hostname or IP address of the machine on which the [Postfix Rest Server][1] is running.
+* `port` - The port on which the [Postfix Rest Server][1] is listening.
 
 Example: 
 
@@ -149,3 +151,5 @@ or
 ```
 emailctl [command [sub-command]...] --help
 ```
+
+[1]: https://github.com/lyubenblagoev/postfix-rest-server "Postfix Rest Server"
