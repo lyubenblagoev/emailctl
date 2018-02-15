@@ -51,7 +51,7 @@ func (s *aliasService) List(domain string) ([]Alias, error) {
 }
 
 func (s *aliasService) Get(domain, alias string) ([]Alias, error) {
-	if err := ValidateEmailAddress(alias, domain); err != nil {
+	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return nil, err
 	}
 
@@ -68,11 +68,11 @@ func (s *aliasService) Get(domain, alias string) ([]Alias, error) {
 }
 
 func (s *aliasService) GetForEmail(domain, alias, email string) (*Alias, error) {
-	if err := ValidateEmailAddress(alias, domain); err != nil {
+	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return nil, err
 	}
 	parts := strings.Split(email, "@")
-	if err := ValidateEmailAddress(parts[0], parts[1]); err != nil {
+	if err := ValidateEmailFromParts(parts[0], parts[1]); err != nil {
 		return nil, err
 	}
 
@@ -89,14 +89,14 @@ func (s *aliasService) Create(domain, alias, email string) error {
 }
 
 func (s *aliasService) Delete(domain, alias, email string) error {
-	if err := ValidateEmailAddress(alias, domain); err != nil {
+	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return err
 	}
 	return s.client.Aliases.Delete(domain, alias, email)
 }
 
 func (s *aliasService) DeleteAll(domain, alias string) error {
-	if err := ValidateEmailAddress(alias, domain); err != nil {
+	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return err
 	}
 
@@ -122,11 +122,11 @@ func (s *aliasService) Disable(domain, alias, email string) error {
 }
 
 func (s *aliasService) setEnabled(domain, alias, email string, enabled bool) error {
-	if err := ValidateEmailAddress(alias, domain); err != nil {
+	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return fmt.Errorf("Invalid alias email: %s: %v", fmt.Sprintf("%s@%s", alias, domain), err)
 	}
 	parts := strings.Split(email, "@")
-	if err := ValidateEmailAddress(parts[0], parts[1]); err != nil {
+	if err := ValidateEmailFromParts(parts[0], parts[1]); err != nil {
 		return fmt.Errorf("Invalid recipient address: %s: %v", email, err)
 	}
 
@@ -144,7 +144,7 @@ func (s *aliasService) setEnabled(domain, alias, email string, enabled bool) err
 }
 
 func (s *aliasService) Rename(domain, alias, email, newName string) error {
-	if err := ValidateEmailAddress(newName, domain); err != nil {
+	if err := ValidateEmailFromParts(newName, domain); err != nil {
 		return err
 	}
 
@@ -156,7 +156,7 @@ func (s *aliasService) Rename(domain, alias, email, newName string) error {
 }
 
 func (s *aliasService) RenameAll(domain, alias, newName string) error {
-	if err := ValidateEmailAddress(newName, domain); err != nil {
+	if err := ValidateEmailFromParts(newName, domain); err != nil {
 		return err
 	}
 

@@ -46,7 +46,7 @@ func (s *accountService) List(domain string) ([]Account, error) {
 }
 
 func (s *accountService) Get(domain string, username string) (*Account, error) {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return nil, err
 	}
 
@@ -59,7 +59,7 @@ func (s *accountService) Get(domain string, username string) (*Account, error) {
 }
 
 func (s *accountService) Create(domain, username, password string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 
@@ -67,7 +67,7 @@ func (s *accountService) Create(domain, username, password string) error {
 }
 
 func (s *accountService) Delete(domain, username string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 
@@ -75,7 +75,7 @@ func (s *accountService) Delete(domain, username string) error {
 }
 
 func (s *accountService) Enable(domain, username string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 
@@ -87,7 +87,7 @@ func (s *accountService) Enable(domain, username string) error {
 }
 
 func (s *accountService) Disable(domain, username string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 
@@ -101,7 +101,7 @@ func (s *accountService) Disable(domain, username string) error {
 func (s *accountService) Rename(domain, old, new string) error {
 	usernames := []string{old, new}
 	for _, u := range usernames {
-		if err := ValidateEmailAddress(u, domain); err != nil {
+		if err := ValidateEmailFromParts(u, domain); err != nil {
 			return err
 		}
 	}
@@ -113,7 +113,7 @@ func (s *accountService) Rename(domain, old, new string) error {
 }
 
 func (s *accountService) ChangePassword(domain, username, password string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 

@@ -1,8 +1,6 @@
 package emailctl
 
 import (
-	"strings"
-
 	"github.com/lyubenblagoev/goprsc"
 )
 
@@ -43,7 +41,7 @@ func NewOutputBccService(client *goprsc.Client) BccService {
 }
 
 func (s *bccService) Get(domain, username string) (*Bcc, error) {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return nil, err
 	}
 
@@ -56,11 +54,10 @@ func (s *bccService) Get(domain, username string) (*Bcc, error) {
 }
 
 func (s *bccService) Create(domain, username, email string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
-	parts := strings.Split(email, "@")
-	if err := ValidateEmailAddress(parts[0], parts[1]); err != nil {
+	if err := ValidateEmail(email); err != nil {
 		return err
 	}
 
@@ -68,14 +65,14 @@ func (s *bccService) Create(domain, username, email string) error {
 }
 
 func (s *bccService) Delete(domain, username string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 	return s.service.Delete(domain, username)
 }
 
 func (s *bccService) Enable(domain, username string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 
@@ -86,7 +83,7 @@ func (s *bccService) Enable(domain, username string) error {
 }
 
 func (s *bccService) Disable(domain, username string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
 
@@ -97,11 +94,10 @@ func (s *bccService) Disable(domain, username string) error {
 }
 
 func (s *bccService) ChangeRecipient(domain, username, email string) error {
-	if err := ValidateEmailAddress(username, domain); err != nil {
+	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
-	parts := strings.Split(email, "@")
-	if err := ValidateEmailAddress(parts[0], parts[1]); err != nil {
+	if err := ValidateEmail(email); err != nil {
 		return err
 	}
 
