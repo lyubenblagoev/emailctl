@@ -11,11 +11,15 @@ import (
 type Client struct {
 	client *goprsc.Client
 
-	Domains    DomainService
-	Accounts   AccountService
-	Aliases    AliasService
-	InputBccs  BccService
-	OutputBccs BccService
+	Domains    *DomainService
+	Accounts   *AccountService
+	Aliases    *AliasService
+	InputBccs  *InputBccService
+	OutputBccs *OutputBccService
+}
+
+type service struct {
+	client *goprsc.Client
 }
 
 // NewClient creates an instance of Client.
@@ -25,17 +29,15 @@ func NewClient() (*Client, error) {
 		return nil, fmt.Errorf("unable to initialize Postfix REST Server API client: %s", err)
 	}
 
-	client := &Client{
-		client: goprscClient,
-
-		Domains:    NewDomainService(goprscClient),
-		Accounts:   NewAccountService(goprscClient),
-		Aliases:    NewAliasService(goprscClient),
-		InputBccs:  NewInputBccService(goprscClient),
-		OutputBccs: NewOutputBccService(goprscClient),
-	}
-
-	return client, nil
+	c := &Client{client: goprscClient}
+	s := service{client: goprscClient} // Reuse the same structure instead of allocating one for each service
+	c.Domains = (*DomainService)(&s)
+	c.Accounts = (*AccountService)(&s)
+	c.Aliases = (*AliasService)(&s)
+	// Allocate separate structs for the BCC services as they have different state
+	c.InputBccs = NewInputBccService(goprscClient)
+	c.OutputBccs = NewOutputBccService(goprscClient)
+	return c, nil
 }
 
 func getGoprscClient() (*goprsc.Client, error) {

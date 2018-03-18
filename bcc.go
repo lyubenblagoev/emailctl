@@ -9,7 +9,6 @@ type Bcc struct {
 	*goprsc.Bcc
 }
 
-// BccService is an interface for interacting with the PostfixRestServer bcc API.
 type BccService interface {
 	Get(domain, username string) (*Bcc, error)
 	Create(domain, username, email string) error
@@ -19,33 +18,47 @@ type BccService interface {
 	ChangeRecipient(domain, username, email string) error
 }
 
-type bccService struct {
-	client  *goprsc.Client
-	service goprsc.BccService
+type bccServiceImpl struct {
+	client     *goprsc.Client
+	bccService goprsc.BccService
 }
 
-// NewInputBccService builds a new BccService instance for interacting with the sender BCC API.
-func NewInputBccService(client *goprsc.Client) BccService {
-	return &bccService{
-		client:  client,
-		service: goprsc.NewInputBccService(client),
+// InputBccService handles communication with the recipient BCC API.
+type InputBccService struct {
+	*bccServiceImpl
+}
+
+// NewInputBccService builds a new InputBccServer instance for interacting with the recipient BCC API.
+func NewInputBccService(client *goprsc.Client) *InputBccService {
+	return &InputBccService{
+		bccServiceImpl: &bccServiceImpl{
+			client:     client,
+			bccService: goprsc.NewIncommingBccService(client),
+		},
 	}
 }
 
-// NewOutputBccService builds a new BccService instance for interacting with the recipient BCC API.
-func NewOutputBccService(client *goprsc.Client) BccService {
-	return &bccService{
-		client:  client,
-		service: goprsc.NewOutputBccService(client),
+// OutputBccService handles communication with the sender BCC API.
+type OutputBccService struct {
+	*bccServiceImpl
+}
+
+// NewOutputBccService builds a new OutputBccService instance for interacting with the sender BCC API.
+func NewOutputBccService(client *goprsc.Client) *OutputBccService {
+	return &OutputBccService{
+		bccServiceImpl: &bccServiceImpl{
+			client:     client,
+			bccService: goprsc.NewOutgoingBccService(client),
+		},
 	}
 }
 
-func (s *bccService) Get(domain, username string) (*Bcc, error) {
+func (s *bccServiceImpl) Get(domain, username string) (*Bcc, error) {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return nil, err
 	}
 
-	b, err := s.service.Get(domain, username)
+	b, err := s.bccService.Get(domain, username)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +66,7 @@ func (s *bccService) Get(domain, username string) (*Bcc, error) {
 	return &Bcc{Bcc: b}, nil
 }
 
-func (s *bccService) Create(domain, username, email string) error {
+func (s *bccServiceImpl) Create(domain, username, email string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -61,17 +74,17 @@ func (s *bccService) Create(domain, username, email string) error {
 		return err
 	}
 
-	return s.service.Create(domain, username, email)
+	return s.bccService.Create(domain, username, email)
 }
 
-func (s *bccService) Delete(domain, username string) error {
+func (s *bccServiceImpl) Delete(domain, username string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
-	return s.service.Delete(domain, username)
+	return s.bccService.Delete(domain, username)
 }
 
-func (s *bccService) Enable(domain, username string) error {
+func (s *bccServiceImpl) Enable(domain, username string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -79,10 +92,10 @@ func (s *bccService) Enable(domain, username string) error {
 	ur := &goprsc.BccUpdateRequest{
 		Enabled: true,
 	}
-	return s.service.Update(domain, username, ur)
+	return s.bccService.Update(domain, username, ur)
 }
 
-func (s *bccService) Disable(domain, username string) error {
+func (s *bccServiceImpl) Disable(domain, username string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -90,10 +103,10 @@ func (s *bccService) Disable(domain, username string) error {
 	ur := &goprsc.BccUpdateRequest{
 		Enabled: false,
 	}
-	return s.service.Update(domain, username, ur)
+	return s.bccService.Update(domain, username, ur)
 }
 
-func (s *bccService) ChangeRecipient(domain, username, email string) error {
+func (s *bccServiceImpl) ChangeRecipient(domain, username, email string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -105,5 +118,5 @@ func (s *bccService) ChangeRecipient(domain, username, email string) error {
 		Email:   email,
 		Enabled: false,
 	}
-	return s.service.Update(domain, username, ur)
+	return s.bccService.Update(domain, username, ur)
 }

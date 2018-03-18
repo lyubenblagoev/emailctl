@@ -7,30 +7,12 @@ type Domain struct {
 	*goprsc.Domain
 }
 
-// DomainService is an interface for interacting with the PostfixRestServer domain API.
-type DomainService interface {
-	List() ([]Domain, error)
-	Get(name string) (*Domain, error)
-	Create(name string) error
-	Delete(name string) error
-	Rename(old, new string) error
-	Enable(name string) error
-	Disable(name string) error
-}
+// DomainService handles communication with the domain API of the Postfix REST Server.
+type DomainService service
 
-type domainService struct {
-	client *goprsc.Client
-}
-
-// NewDomainService builds a DomainService instance.
-func NewDomainService(client *goprsc.Client) DomainService {
-	return &domainService{
-		client: client,
-	}
-}
-
-func (ds *domainService) List() ([]Domain, error) {
-	domains, err := ds.client.Domains.List()
+// List retrieves all domains.
+func (s *DomainService) List() ([]Domain, error) {
+	domains, err := s.client.Domains.List()
 	if err != nil {
 		return nil, err
 	}
@@ -44,33 +26,39 @@ func (ds *domainService) List() ([]Domain, error) {
 	return list, nil
 }
 
-func (ds *domainService) Get(name string) (*Domain, error) {
-	d, err := ds.client.Domains.Get(name)
+// Get retrieves a domain with the specified domain name
+func (s *DomainService) Get(name string) (*Domain, error) {
+	d, err := s.client.Domains.Get(name)
 	if err != nil {
 		return nil, err
 	}
 	return &Domain{Domain: d}, nil
 }
 
-func (ds *domainService) Create(name string) error {
-	return ds.client.Domains.Create(name)
+// Create creates a new domain with the specified domain name.
+func (s *DomainService) Create(name string) error {
+	return s.client.Domains.Create(name)
 }
 
-func (ds *domainService) Delete(name string) error {
-	return ds.client.Domains.Delete(name)
+// Delete deletes the domain with the specified name.
+func (s *DomainService) Delete(name string) error {
+	return s.client.Domains.Delete(name)
 }
 
-func (ds *domainService) Rename(old, new string) error {
+// Rename renames domain with domain name 'old' to 'new'.
+func (s *DomainService) Rename(old, new string) error {
 	ur := &goprsc.DomainUpdateRequest{Name: new}
-	return ds.client.Domains.Update(old, ur)
+	return s.client.Domains.Update(old, ur)
 }
 
-func (ds *domainService) Enable(name string) error {
+// Enable enables the domain specified by 'name'.
+func (s *DomainService) Enable(name string) error {
 	ur := &goprsc.DomainUpdateRequest{Name: name, Enabled: true}
-	return ds.client.Domains.Update(name, ur)
+	return s.client.Domains.Update(name, ur)
 }
 
-func (ds *domainService) Disable(name string) error {
+// Disable disables the domain specified by 'name'.
+func (s *DomainService) Disable(name string) error {
 	ur := &goprsc.DomainUpdateRequest{Name: name, Enabled: false}
-	return ds.client.Domains.Update(name, ur)
+	return s.client.Domains.Update(name, ur)
 }

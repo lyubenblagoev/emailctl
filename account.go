@@ -7,30 +7,11 @@ type Account struct {
 	*goprsc.Account
 }
 
-// AccountService is an interface for interacting with the PostfixRestServer account API.
-type AccountService interface {
-	List(domain string) ([]Account, error)
-	Get(domain string, username string) (*Account, error)
-	Create(domain, username, password string) error
-	Delete(domain, username string) error
-	Enable(domain, username string) error
-	Disable(domain, username string) error
-	Rename(domain, old, new string) error
-	ChangePassword(domain, username, password string) error
-}
+// AccountService handles communication with the account API on the Postfix REST Server.
+type AccountService service
 
-type accountService struct {
-	client *goprsc.Client
-}
-
-// NewAccountService builds an AccountService instance.
-func NewAccountService(client *goprsc.Client) AccountService {
-	return &accountService{
-		client: client,
-	}
-}
-
-func (s *accountService) List(domain string) ([]Account, error) {
+// List retrieves all accounts for the specified domain.
+func (s *AccountService) List(domain string) ([]Account, error) {
 	accounts, err := s.client.Accounts.List(domain)
 	if err != nil {
 		return nil, err
@@ -45,7 +26,8 @@ func (s *accountService) List(domain string) ([]Account, error) {
 	return list, nil
 }
 
-func (s *accountService) Get(domain string, username string) (*Account, error) {
+// Get retrieves the account for domain 'domain' with name 'username'.
+func (s *AccountService) Get(domain string, username string) (*Account, error) {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return nil, err
 	}
@@ -58,7 +40,9 @@ func (s *accountService) Get(domain string, username string) (*Account, error) {
 	return &Account{Account: a}, nil
 }
 
-func (s *accountService) Create(domain, username, password string) error {
+// Create creates a new account in the specified domain with the given username
+// and password.
+func (s *AccountService) Create(domain, username, password string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -66,7 +50,8 @@ func (s *accountService) Create(domain, username, password string) error {
 	return s.client.Accounts.Create(domain, username, password)
 }
 
-func (s *accountService) Delete(domain, username string) error {
+// Delete deletes the specified account.
+func (s *AccountService) Delete(domain, username string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -74,7 +59,8 @@ func (s *accountService) Delete(domain, username string) error {
 	return s.client.Accounts.Delete(domain, username)
 }
 
-func (s *accountService) Enable(domain, username string) error {
+// Enable enables the specified account.
+func (s *AccountService) Enable(domain, username string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -86,7 +72,8 @@ func (s *accountService) Enable(domain, username string) error {
 	return s.client.Accounts.Update(domain, username, ur)
 }
 
-func (s *accountService) Disable(domain, username string) error {
+// Disable disables the specified account.
+func (s *AccountService) Disable(domain, username string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}
@@ -98,7 +85,8 @@ func (s *accountService) Disable(domain, username string) error {
 	return s.client.Accounts.Update(domain, username, ur)
 }
 
-func (s *accountService) Rename(domain, old, new string) error {
+// Rename renames the specified account username from 'old'@domain to 'new'@domain.
+func (s *AccountService) Rename(domain, old, new string) error {
 	usernames := []string{old, new}
 	for _, u := range usernames {
 		if err := ValidateEmailFromParts(u, domain); err != nil {
@@ -112,7 +100,8 @@ func (s *accountService) Rename(domain, old, new string) error {
 	return s.client.Accounts.Update(domain, old, ur)
 }
 
-func (s *accountService) ChangePassword(domain, username, password string) error {
+// ChangePassword changes the password for the specified account.
+func (s *AccountService) ChangePassword(domain, username, password string) error {
 	if err := ValidateEmailFromParts(username, domain); err != nil {
 		return err
 	}

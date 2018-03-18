@@ -12,32 +12,11 @@ type Alias struct {
 	*goprsc.Alias
 }
 
-// AliasService is an interface for interacting with the PostfixRestServer alias API.
-type AliasService interface {
-	List(domain string) ([]Alias, error)
-	Get(domain, alias string) ([]Alias, error)
-	GetForEmail(domain, alias, email string) (*Alias, error)
-	Create(domain, alias, email string) error
-	Disable(domain, alias, email string) error
-	Enable(domain, alias, email string) error
-	Delete(domain, alias, email string) error
-	DeleteAll(domain, alias string) error
-	Rename(domain, alias, email, newName string) error
-	RenameAll(domain, alias, newName string) error
-}
+// AliasService handles communication with the alias API of the Postfix REST Server.
+type AliasService service
 
-type aliasService struct {
-	client *goprsc.Client
-}
-
-// NewAliasService builds an AliasService instance.
-func NewAliasService(client *goprsc.Client) AliasService {
-	return &aliasService{
-		client: client,
-	}
-}
-
-func (s *aliasService) List(domain string) ([]Alias, error) {
+// List retrieves all aliases for accounts in the specified domain.
+func (s *AliasService) List(domain string) ([]Alias, error) {
 	aliases, err := s.client.Aliases.List(domain)
 	if err != nil {
 		return nil, err
@@ -50,7 +29,8 @@ func (s *aliasService) List(domain string) ([]Alias, error) {
 	return list, nil
 }
 
-func (s *aliasService) Get(domain, alias string) ([]Alias, error) {
+// Get retrieves all recipients for the specified alias.
+func (s *AliasService) Get(domain, alias string) ([]Alias, error) {
 	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return nil, err
 	}
@@ -67,7 +47,8 @@ func (s *aliasService) Get(domain, alias string) ([]Alias, error) {
 	return list, nil
 }
 
-func (s *aliasService) GetForEmail(domain, alias, email string) (*Alias, error) {
+// GetForEmail retreives a specific alias.
+func (s *AliasService) GetForEmail(domain, alias, email string) (*Alias, error) {
 	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return nil, err
 	}
@@ -84,18 +65,21 @@ func (s *aliasService) GetForEmail(domain, alias, email string) (*Alias, error) 
 	return &Alias{Alias: a}, nil
 }
 
-func (s *aliasService) Create(domain, alias, email string) error {
+// Create assignes email to the specified alias.
+func (s *AliasService) Create(domain, alias, email string) error {
 	return s.client.Aliases.Create(domain, alias, email)
 }
 
-func (s *aliasService) Delete(domain, alias, email string) error {
+// Delete deletes the specified alias.
+func (s *AliasService) Delete(domain, alias, email string) error {
 	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return err
 	}
 	return s.client.Aliases.Delete(domain, alias, email)
 }
 
-func (s *aliasService) DeleteAll(domain, alias string) error {
+// DeleteAll deletes all recipients for a specific alias.
+func (s *AliasService) DeleteAll(domain, alias string) error {
 	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return err
 	}
@@ -113,15 +97,17 @@ func (s *aliasService) DeleteAll(domain, alias string) error {
 	return nil
 }
 
-func (s *aliasService) Enable(domain, alias, email string) error {
+// Enable enables the specified alias.
+func (s *AliasService) Enable(domain, alias, email string) error {
 	return s.setEnabled(domain, alias, email, true)
 }
 
-func (s *aliasService) Disable(domain, alias, email string) error {
+// Disable disables the specified alias.
+func (s *AliasService) Disable(domain, alias, email string) error {
 	return s.setEnabled(domain, alias, email, false)
 }
 
-func (s *aliasService) setEnabled(domain, alias, email string, enabled bool) error {
+func (s *AliasService) setEnabled(domain, alias, email string, enabled bool) error {
 	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return fmt.Errorf("Invalid alias email: %s: %v", fmt.Sprintf("%s@%s", alias, domain), err)
 	}
@@ -143,7 +129,8 @@ func (s *aliasService) setEnabled(domain, alias, email string, enabled bool) err
 	return s.client.Aliases.Update(domain, alias, email, ur)
 }
 
-func (s *aliasService) Rename(domain, alias, email, newName string) error {
+// Rename changes the username part of the specified alias forwarding to the specified email address.
+func (s *AliasService) Rename(domain, alias, email, newName string) error {
 	if err := ValidateEmailFromParts(newName, domain); err != nil {
 		return err
 	}
@@ -155,7 +142,8 @@ func (s *aliasService) Rename(domain, alias, email, newName string) error {
 	return s.client.Aliases.Update(domain, alias, email, ur)
 }
 
-func (s *aliasService) RenameAll(domain, alias, newName string) error {
+// RenameAll renames the username part of the specified aliases (for all recipients attached to the alias).
+func (s *AliasService) RenameAll(domain, alias, newName string) error {
 	if err := ValidateEmailFromParts(newName, domain); err != nil {
 		return err
 	}
