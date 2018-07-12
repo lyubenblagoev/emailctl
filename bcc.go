@@ -9,6 +9,7 @@ type Bcc struct {
 	*goprsc.Bcc
 }
 
+// BccService handles communication with the BCC API.
 type BccService interface {
 	Get(domain, username string) (*Bcc, error)
 	Create(domain, username, email string) error
