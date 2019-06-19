@@ -47,7 +47,11 @@ func (s *DomainService) Delete(name string) error {
 
 // Rename renames domain with domain name 'old' to 'new'.
 func (s *DomainService) Rename(old, new string) error {
-	ur := &goprsc.DomainUpdateRequest{Name: new}
+	domain, err := s.client.Domains.Get(old)
+	if err != nil {
+		return err
+	}
+	ur := &goprsc.DomainUpdateRequest{Name: new, Enabled: domain.Enabled}
 	return s.client.Domains.Update(old, ur)
 }
 

@@ -135,9 +135,14 @@ func (s *AliasService) Rename(domain, alias, email, newName string) error {
 		return err
 	}
 
+	a, err := s.client.Aliases.GetForEmail(domain, alias, email)
+	if err != nil {
+		return err
+	}
 	ur := &goprsc.AliasUpdateRequest{
-		Name:  newName,
-		Email: email,
+		Name:    newName,
+		Email:   email,
+		Enabled: a.Enabled,
 	}
 	return s.client.Aliases.Update(domain, alias, email, ur)
 }
@@ -154,8 +159,9 @@ func (s *AliasService) RenameAll(domain, alias, newName string) error {
 	}
 	for _, a := range aliases {
 		ur := &goprsc.AliasUpdateRequest{
-			Name:  newName,
-			Email: a.Email,
+			Name:    newName,
+			Email:   a.Email,
+			Enabled: a.Enabled,
 		}
 		if err := s.client.Aliases.Update(domain, alias, a.Email, ur); err != nil {
 			return err

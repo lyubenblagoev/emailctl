@@ -94,8 +94,13 @@ func (s *AccountService) Rename(domain, old, new string) error {
 		}
 	}
 
+	account, err := s.client.Accounts.Get(domain, old)
+	if err != nil {
+		return err
+	}
 	ur := &goprsc.AccountUpdateRequest{
 		Username: new,
+		Enabled:  account.Enabled,
 	}
 	return s.client.Accounts.Update(domain, old, ur)
 }
@@ -106,10 +111,15 @@ func (s *AccountService) ChangePassword(domain, username, password string) error
 		return err
 	}
 
+	account, err := s.client.Accounts.Get(domain, username)
+	if err != nil {
+		return err
+	}
 	ur := &goprsc.AccountUpdateRequest{
 		Username:        username,
 		Password:        password,
 		ConfirmPassword: password,
+		Enabled:         account.Enabled,
 	}
 	return s.client.Accounts.Update(domain, username, ur)
 }

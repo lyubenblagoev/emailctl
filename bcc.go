@@ -115,9 +115,13 @@ func (s *bccServiceImpl) ChangeRecipient(domain, username, email string) error {
 		return err
 	}
 
+	bcc, err := s.bccService.Get(domain, username)
+	if err != nil {
+		return err
+	}
 	ur := &goprsc.BccUpdateRequest{
 		Email:   email,
-		Enabled: false,
+		Enabled: bcc.Enabled,
 	}
 	return s.bccService.Update(domain, username, ur)
 }
