@@ -34,7 +34,7 @@ func NewInputBccService(client *goprsc.Client) *InputBccService {
 	return &InputBccService{
 		bccServiceImpl: &bccServiceImpl{
 			client:     client,
-			bccService: goprsc.NewIncommingBccService(client),
+			bccService: goprsc.NewIncomingBccService(client),
 		},
 	}
 }
