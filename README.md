@@ -46,7 +46,7 @@ go build -o some-path/emailctl ./cmd/emailctl
 
 ## Configuration
 
-By default `emailctl` will load a configuration file from `$HOME/.emailctl.yaml`. 
+By default `emailctl` will load a configuration file from `$HOME/.emailctl.yaml`. Make sure to set proper permissions to this file, so no one else can read it, as `emailctl` uses it to store the access and refresh tokens.
 
 ### Configuration options
 
