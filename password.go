@@ -13,15 +13,16 @@ const (
 	maxPromptRetries = 3
 )
 
-// ReadPassword reads a password and confirmation from the terminal.
-func ReadPassword() (string, error) {
+// ReadAndConfirmPassword reads a password and confirmation from the terminal.
+// Retries three times if the passwords do not match.
+func ReadAndConfirmPassword() (string, error) {
 	for i := 0; i < maxPromptRetries; i++ {
-		pass, err := readPass("Password: ")
+		pass, err := ReadPassword("Password: ")
 		if err != nil {
 			return "", err
 		}
 
-		confirmPass, err := readPass("Confirm password: ")
+		confirmPass, err := ReadPassword("Confirm password: ")
 		if err != nil {
 			return "", err
 		}
@@ -39,7 +40,8 @@ func ReadPassword() (string, error) {
 	return "", errors.New("Passwords don't match")
 }
 
-func readPass(prompt string) (string, error) {
+// ReadPassword reads a password from the terminal
+func ReadPassword(prompt string) (string, error) {
 	fmt.Print(prompt)
 	b, err := terminal.ReadPassword(syscall.Stdin)
 	fmt.Print("\n")

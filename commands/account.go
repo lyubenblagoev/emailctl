@@ -64,7 +64,7 @@ func showAccount(client *emailctl.Client, args []string) error {
 
 func addAccount(client *emailctl.Client, args []string) error {
 	domain, username := args[0], args[1]
-	password, err := emailctl.ReadPassword()
+	password, err := emailctl.ReadAndConfirmPassword()
 	if err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func renameAccount(client *emailctl.Client, args []string) error {
 
 func changeAccountPassword(client *emailctl.Client, args []string) error {
 	domain, username := args[0], args[1]
-	password, err := emailctl.ReadPassword()
+	password, err := emailctl.ReadAndConfirmPassword()
 	if err != nil {
 		return err
 	}

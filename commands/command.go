@@ -25,9 +25,8 @@ func BuildCommand(parent *Command, runner CommandRunner, usage, description stri
 		Short: description,
 		Long:  description,
 		Run: func(cmd *cobra.Command, args []string) {
-			client, err := emailctl.NewClient()
-			checkErr(err)
 			checkErr(runner(client, args))
+			SaveAuth(client.GetLogin(), client.GetAuthToken(), client.GetRefreshToken())
 		},
 	}
 

@@ -1,6 +1,9 @@
 package commands
 
 import (
+	"log"
+	"os"
+
 	"github.com/lyubenblagoev/emailctl"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -9,11 +12,12 @@ import (
 // EmailctlVersion is emailctl's version.
 var EmailctlVersion = emailctl.Version{
 	Major: 0,
-	Minor: 1,
+	Minor: 2,
 	Patch: 0,
 }
 
 var cfgFile string
+var client *emailctl.Client
 
 // emailctlCommand represents the base command when called without any subcommands
 var emailctlCommand = &Command{
@@ -38,10 +42,16 @@ func init() {
 func initConfig() {
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
+	} else {
+		viper.SetConfigName(".emailctl")
+		viper.SetConfigType("yaml")
 	}
 
-	viper.SetConfigName(".emailctl")
-	viper.AddConfigPath("$HOME")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal("Failed to determine user's home directory.", err)
+	}
+	viper.AddConfigPath(home)
 	viper.AutomaticEnv()
 
 	viper.SetDefault("host", "localhost")
@@ -49,13 +59,22 @@ func initConfig() {
 	viper.SetDefault("https", false)
 
 	checkErr(viper.ReadInConfig())
+
+	initClient()
 }
 
 func initCommands() {
+	emailctlCommand.AddCommand(CreateAuthCommand())
 	emailctlCommand.AddCommand(CreateDomainCommand())
 	emailctlCommand.AddCommand(CreateAccountCommand())
 	emailctlCommand.AddCommand(CreateAliasCommand())
 	emailctlCommand.AddCommand(CreateVersionCommand())
 	emailctlCommand.AddCommand(CreateSenderBccCommand())
 	emailctlCommand.AddCommand(CreateRecipientBccCommand())
+}
+
+func initClient() {
+	var err error
+	client, err = emailctl.NewClient()
+	checkErr(err)
 }

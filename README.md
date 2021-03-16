@@ -13,6 +13,7 @@ Usage:
 Available Commands:
   account       Account commands
   alias         Alias commands
+  auth          Authentication commands
   domain        Domain commands
   help          Help about any command
   recipient-bcc recipient-bcc commands
@@ -24,6 +25,7 @@ Flags:
   -h, --help            help for emailctl
 
 Use "emailctl [command] --help" for more information about a command.
+
 ```
 
 ## Installation
@@ -65,6 +67,20 @@ The above values are the defaults. You can omit options that don't change the de
 ## Examples
 
 Below are a few usage examples:
+
+### Authentication
+
+* Log in
+
+```
+emailctl auth login admin@example.com
+```
+
+* Log out
+
+```
+emailctl auth logout
+```
 
 ### Domain API
 
