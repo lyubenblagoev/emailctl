@@ -2,8 +2,10 @@ package commands
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/lyubenblagoev/emailctl"
+	"github.com/lyubenblagoev/goprsc"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +19,7 @@ func CreateDomainCommand() *Command {
 		},
 	}
 
-	BuildCommand(c, listDomains, "list", "List all domains", AliasOption("l"))
+	buildPaginatedCommand(c, listDomains, "list", "List domains", AliasOption("l"))
 	BuildCommand(c, showDomain, "show <domain-name>", "Show specific domain", ArgsOption(1), AliasOption("s"))
 	BuildCommand(c, addDomain, "add <domain-name>", "Add a new domain", ArgsOption(1), AliasOption("a"))
 	BuildCommand(c, deleteDomain, "delete <domain-name>", "Delete a domain", ArgsOption(1), AliasOption("rm"))
@@ -28,18 +30,13 @@ func CreateDomainCommand() *Command {
 	return c
 }
 
-func listDomains(client *emailctl.Client, args []string) error {
-	domains, err := client.Domains.List()
+func listDomains(client *emailctl.Client, args []string, options []goprsc.PaginationOptions) error {
+	domains, err := client.Domains.List(options...)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Domains:\n")
-	fmt.Printf("%-5s%-30s%-10s%-12s%-12s\n", "ID", "Name", "Enabled", "Created", "Updated")
-	for _, d := range domains {
-		fmt.Printf("%-5d%-30s%-10t%-12s%-12s\n", d.ID, d.Name, d.Enabled, d.Created.Format("2006-01-02"), d.Updated.Format("2006-01-02"))
-	}
-
+	writeDomainPage(os.Stdout, domains)
 	return nil
 }
 

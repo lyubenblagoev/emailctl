@@ -10,20 +10,20 @@ type Domain struct {
 // DomainService handles communication with the domain API of the Postfix REST Server.
 type DomainService service
 
-// List retrieves all domains.
-func (s *DomainService) List() ([]Domain, error) {
-	domains, err := s.client.Domains.List()
+// List retrieves one page of domains.
+func (s *DomainService) List(options ...goprsc.PaginationOptions) (*DomainsPage, error) {
+	domains, err := s.client.Domains.List(options...)
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]Domain, len(domains))
-	for i := range domains {
-		d := domains[i]
+	list := make([]Domain, len(domains.Items))
+	for i := range domains.Items {
+		d := domains.Items[i]
 		list[i] = Domain{Domain: &d}
 	}
 
-	return list, nil
+	return &DomainsPage{Items: list, PaginationMetadata: domains.PaginationMetadata}, nil
 }
 
 // Get retrieves a domain with the specified domain name

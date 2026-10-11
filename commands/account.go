@@ -2,8 +2,10 @@ package commands
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/lyubenblagoev/emailctl"
+	"github.com/lyubenblagoev/goprsc"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +19,7 @@ func CreateAccountCommand() *Command {
 		},
 	}
 
-	BuildCommand(c, listAccounts, "list <domain-name>", "List all accounts", ArgsOption(1), AliasOption("l"))
+	buildPaginatedCommand(c, listAccounts, "list <domain-name>", "List accounts", ArgsOption(1), AliasOption("l"))
 	BuildCommand(c, showAccount, "show <domain-name> <name>", "Show specific account", ArgsOption(2), AliasOption("s"))
 	BuildCommand(c, addAccount, "add <domain-name> <name>", "Add a new account", ArgsOption(2), AliasOption("a"))
 	BuildCommand(c, deleteAccount, "delete <domain-name> <name>", "Delete an account", ArgsOption(2), AliasOption("rm"))
@@ -29,20 +31,14 @@ func CreateAccountCommand() *Command {
 	return c
 }
 
-func listAccounts(client *emailctl.Client, args []string) error {
+func listAccounts(client *emailctl.Client, args []string, options []goprsc.PaginationOptions) error {
 	domain := args[0]
-	accounts, err := client.Accounts.List(domain)
+	accounts, err := client.Accounts.List(domain, options...)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Accounts for '%s':\n", domain)
-	fmt.Printf("%-5s%-30s%-10s%-12s%-12s\n", "ID", "Email Address", "Enabled", "Created", "Updated")
-	for _, a := range accounts {
-		email := fmt.Sprintf("%s@%s", a.Username, domain)
-		fmt.Printf("%-5d%-30s%-10t%-12s%-12s\n", a.ID, email, a.Enabled, a.Created.Format("2006-01-02"), a.Updated.Format("2006-01-02"))
-	}
-
+	writeAccountPage(os.Stdout, domain, accounts)
 	return nil
 }
 

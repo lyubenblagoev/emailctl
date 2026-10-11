@@ -2,8 +2,10 @@ package commands
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/lyubenblagoev/emailctl"
+	"github.com/lyubenblagoev/goprsc"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +19,7 @@ func CreateAliasCommand() *Command {
 		},
 	}
 
-	BuildCommand(c, listAliases, "list <domain-name> [<name>]", "List all aliases", ArgsRangeOption(1, 2), AliasOption("l"))
+	buildPaginatedCommand(c, listAliases, "list <domain-name> [<name>]", "List aliases", ArgsRangeOption(1, 2), AliasOption("l"))
 	BuildCommand(c, showAlias, "show <domain-name> <name> <recipient-email-address>", "Show specific alias", ArgsOption(3), AliasOption("s"))
 	BuildCommand(c, addAlias, "add <domain-name> <name> <recipient-email-address>", "Add a new alias", ArgsOption(3), AliasOption("a"))
 	BuildCommand(c, deleteAlias, "delete <domain-name> <name> [<recipient-email-address>]", "Delete alias(es)", ArgsRangeOption(2, 3), AliasOption("rm"))
@@ -28,42 +30,32 @@ func CreateAliasCommand() *Command {
 	return c
 }
 
-func listAliases(client *emailctl.Client, args []string) error {
+func listAliases(client *emailctl.Client, args []string, options []goprsc.PaginationOptions) error {
 	if len(args) == 1 {
-		return listForDomain(client, args)
+		return listForDomain(client, args, options)
 	}
-	return listForAlias(client, args)
+	return listForAlias(client, args, options)
 }
 
-func listForDomain(client *emailctl.Client, args []string) error {
+func listForDomain(client *emailctl.Client, args []string, options []goprsc.PaginationOptions) error {
 	domain := args[0]
-	aliases, err := client.Aliases.List(domain)
+	aliases, err := client.Aliases.List(domain, options...)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Aliases for '%s':\n", domain)
-	fmt.Printf("%-5s%-30s%-30s%-10s%-12s%-12s\n", "ID", "Alias", "Email Address", "Enabled", "Created", "Updated")
-	for _, a := range aliases {
-		fmt.Printf("%-5d%-30s%-30s%-10t%-12s%-12s\n", a.ID, a.Name, a.Email, a.Enabled, a.Created.Format("2006-01-02"), a.Updated.Format("2006-01-02"))
-	}
-
+	writeAliasPage(os.Stdout, fmt.Sprintf("Aliases for '%s'", domain), aliases)
 	return nil
 }
 
-func listForAlias(client *emailctl.Client, args []string) error {
+func listForAlias(client *emailctl.Client, args []string, options []goprsc.PaginationOptions) error {
 	domain, alias := args[0], args[1]
-	aliases, err := client.Aliases.Get(domain, alias)
+	aliases, err := client.Aliases.Get(domain, alias, options...)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Aliases for '%s@%s':\n", alias, domain)
-	fmt.Printf("%-5s%-30s%-30s%-10s%-12s%-12s\n", "ID", "Alias", "Email Address", "Enabled", "Created", "Updated")
-	for _, a := range aliases {
-		fmt.Printf("%-5d%-30s%-30s%-10t%-12s%-12s\n", a.ID, a.Name, a.Email, a.Enabled, a.Created.Format("2006-01-02"), a.Updated.Format("2006-01-02"))
-	}
-
+	writeAliasPage(os.Stdout, fmt.Sprintf("Aliases for '%s@%s'", alias, domain), aliases)
 	return nil
 }
 

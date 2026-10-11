@@ -15,36 +15,38 @@ type Alias struct {
 // AliasService handles communication with the alias API of the Postfix REST Server.
 type AliasService service
 
-// List retrieves all aliases for accounts in the specified domain.
-func (s *AliasService) List(domain string) ([]Alias, error) {
-	aliases, err := s.client.Aliases.List(domain)
+// List retrieves one page of aliases for the specified domain.
+func (s *AliasService) List(domain string, options ...goprsc.PaginationOptions) (*AliasesPage, error) {
+	aliases, err := s.client.Aliases.List(domain, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]Alias, len(aliases))
-	for i := range aliases {
-		list[i] = Alias{Alias: &aliases[i]}
+	list := make([]Alias, len(aliases.Items))
+	for i := range aliases.Items {
+		a := aliases.Items[i]
+		list[i] = Alias{Alias: &a}
 	}
-	return list, nil
+	return &AliasesPage{Items: list, PaginationMetadata: aliases.PaginationMetadata}, nil
 }
 
-// Get retrieves all recipients for the specified alias.
-func (s *AliasService) Get(domain, alias string) ([]Alias, error) {
+// Get retrieves one page of recipients for the specified alias.
+func (s *AliasService) Get(domain, alias string, options ...goprsc.PaginationOptions) (*AliasesPage, error) {
 	if err := ValidateEmailFromParts(alias, domain); err != nil {
 		return nil, err
 	}
 
-	aliases, err := s.client.Aliases.Get(domain, alias)
+	aliases, err := s.client.Aliases.Get(domain, alias, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]Alias, len(aliases))
-	for i := range aliases {
-		list[i] = Alias{Alias: &aliases[i]}
+	list := make([]Alias, len(aliases.Items))
+	for i := range aliases.Items {
+		a := aliases.Items[i]
+		list[i] = Alias{Alias: &a}
 	}
-	return list, nil
+	return &AliasesPage{Items: list, PaginationMetadata: aliases.PaginationMetadata}, nil
 }
 
 // GetForEmail retreives a specific alias.
@@ -84,7 +86,7 @@ func (s *AliasService) DeleteAll(domain, alias string) error {
 		return err
 	}
 
-	aliases, err := s.client.Aliases.Get(domain, alias)
+	aliases, err := s.listAll(domain, alias)
 	if err != nil {
 		return err
 	}
@@ -95,6 +97,30 @@ func (s *AliasService) DeleteAll(domain, alias string) error {
 	}
 
 	return nil
+}
+
+func (s *AliasService) listAll(domain, alias string) ([]goprsc.Alias, error) {
+	var aliases []goprsc.Alias
+	var options []goprsc.PaginationOptions
+	lastPage := 0
+	for {
+		page, err := s.client.Aliases.Get(domain, alias, options...)
+		if err != nil {
+			return nil, err
+		}
+		if page.Page <= lastPage {
+			return nil, fmt.Errorf("invalid alias pagination response: page %d followed page %d", page.Page, lastPage)
+		}
+		lastPage = page.Page
+		aliases = append(aliases, page.Items...)
+		if len(aliases) >= page.Total {
+			return aliases, nil
+		}
+		if page.Page <= 0 || page.PageSize <= 0 || len(page.Items) == 0 {
+			return nil, fmt.Errorf("invalid alias pagination response: page %d, page size %d, total %d", page.Page, page.PageSize, page.Total)
+		}
+		options = []goprsc.PaginationOptions{{Page: page.Page + 1, PageSize: page.PageSize}}
+	}
 }
 
 // Enable enables the specified alias.
@@ -153,7 +179,7 @@ func (s *AliasService) RenameAll(domain, alias, newName string) error {
 		return err
 	}
 
-	aliases, err := s.client.Aliases.Get(domain, alias)
+	aliases, err := s.listAll(domain, alias)
 	if err != nil {
 		return err
 	}

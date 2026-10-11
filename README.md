@@ -84,7 +84,7 @@ emailctl auth logout
 
 ### Domain API
 
-* List all domains on your server:
+* List a page of domains on your server:
 
 ```
 emailctl domain list
@@ -122,10 +122,18 @@ emailctl domain rename example.com example.net
 
 ### Account API
 
-* List accounts for domain:
+* List a page of accounts for a domain:
 
 ```
 emailctl account list example.com
+```
+
+The `domain list`, `account list`, and `alias list` commands accept one-based `--page` and optional `--page-size` flags. Both values must be positive. If `--page-size` is omitted, the server chooses its configured default. The backend enforces its configured maximum page size, which is 200 by default but can be changed by a deployment. Each list output reports the returned page, page size, and total matching resources.
+
+```sh
+emailctl domain list --page 2 --page-size 50
+emailctl account list example.com --page 2
+emailctl alias list example.com contact --page 2 --page-size 25
 ```
 
 * Show information for account in specific domain:

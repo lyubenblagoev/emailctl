@@ -10,20 +10,20 @@ type Account struct {
 // AccountService handles communication with the account API on the Postfix REST Server.
 type AccountService service
 
-// List retrieves all accounts for the specified domain.
-func (s *AccountService) List(domain string) ([]Account, error) {
-	accounts, err := s.client.Accounts.List(domain)
+// List retrieves one page of accounts for the specified domain.
+func (s *AccountService) List(domain string, options ...goprsc.PaginationOptions) (*AccountsPage, error) {
+	accounts, err := s.client.Accounts.List(domain, options...)
 	if err != nil {
 		return nil, err
 	}
 
-	list := make([]Account, len(accounts))
-	for i := range accounts {
-		a := accounts[i]
+	list := make([]Account, len(accounts.Items))
+	for i := range accounts.Items {
+		a := accounts.Items[i]
 		list[i] = Account{Account: &a}
 	}
 
-	return list, nil
+	return &AccountsPage{Items: list, PaginationMetadata: accounts.PaginationMetadata}, nil
 }
 
 // Get retrieves the account for domain 'domain' with name 'username'.
